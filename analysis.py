@@ -90,13 +90,46 @@ def get_miraclib_statistics(miraclib_data):
     return statistics_df
 
 
+#PART 4
+
+#get the subsetted data for part 4
+def get_miraclib_data_t0(conn):
+    #get samples from patients who have melanoma, are treated with miraclib, are PBMC samples at time from treatment start =0
+    miraclib_samples = pd.read_sql_query('''
+    SELECT project, subject, age, sex, response, sample
+    FROM samples_metadata
+    WHERE condition = 'melanoma' AND treatment = 'miraclib' AND sample_type = 'PBMC' AND time_from_treatment_start = 0
+    ''', conn)
+    
+    return miraclib_samples
+
+#get counts of samples/project
+def get_samples_per_project(miraclib_samples):
+    project_counts = miraclib_samples['project'].value_counts()
+
+    return project_counts
+
+def get_responder_counts(miraclib_samples):
+    unique_subjects = miraclib_samples.drop_duplicates(subset='subject')
+    responder_counts = unique_subjects['response'].value_counts()
+
+    return responder_counts
+
+def get_sex_counts(miraclib_samples):
+    unique_subjects = miraclib_samples.drop_duplicates(subset='subject')
+    sex_counts = unique_subjects['sex'].value_counts()
+
+    return sex_counts
+
 if __name__ == "__main__":
     #SQL connection
     conn = sqlite3.connect('teiknical.db')
 
+    #part 2
     summary = get_frequency_table(conn)
     print(summary)
     
+    #part 3
     miraclib_data = get_miraclib_data(conn, summary)
     print (miraclib_data)
     
@@ -105,5 +138,18 @@ if __name__ == "__main__":
     
     statistics_df = get_miraclib_statistics(miraclib_data)
     print(statistics_df)
+
+    #part 4
+    miraclib_at_t0 = get_miraclib_data_t0(conn)
+    print(miraclib_at_t0)
+
+    proj_counts = get_samples_per_project(miraclib_at_t0)
+    print(proj_counts)
+
+    response_counts = get_responder_counts(miraclib_at_t0)
+    print(response_counts)
+
+    sex_counts = get_sex_counts(miraclib_at_t0)
+    print(sex_counts)
 
     conn.close()
