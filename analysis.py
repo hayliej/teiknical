@@ -121,35 +121,68 @@ def get_sex_counts(miraclib_samples):
 
     return sex_counts
 
+
+#Considering Melanoma males of all sample and treatment types, what is the average number of B cells for responders at time=0?
+def get_melanoma_male_data_t0(conn, summary):
+    #get samples from patients who have melanoma, are male, & are responders at time from treatment start =0
+    mm_samples = pd.read_sql_query('''
+    SELECT sample
+    FROM samples_metadata
+    WHERE condition = 'melanoma' AND sex = 'M' AND response = 'yes' AND time_from_treatment_start = 0
+    ''', conn)
+
+    summary_b_cell = summary[summary['population']=='b_cell'][['sample', 'population', 'count']]
+
+    #merge with data frame including percentages from part 2
+    mm_b_data = pd.merge(mm_samples, summary_b_cell, on='sample', how='inner')
+
+    mm_b_counts = mm_b_data['count'].mean()
+    
+    return mm_b_counts
+    
+
 if __name__ == "__main__":
     #SQL connection
     conn = sqlite3.connect('teiknical.db')
 
     #part 2
     summary = get_frequency_table(conn)
+    print('Part 2 frequency df:')
     print(summary)
     
     #part 3
     miraclib_data = get_miraclib_data(conn, summary)
+    print('Part 3 subsetted df:')
     print (miraclib_data)
     
     fig = get_miraclib_boxplot(miraclib_data)
+    print('Plotly boxplot of population responders/non-responders')
     fig.show()
     
     statistics_df = get_miraclib_statistics(miraclib_data)
+    print('Statistical analysis data:')
     print(statistics_df)
+    print('cd4_t_cell shows a significant difference between responders and non-responders')
 
     #part 4
     miraclib_at_t0 = get_miraclib_data_t0(conn)
+    print('Part 4 subsetted df:')
     print(miraclib_at_t0)
 
     proj_counts = get_samples_per_project(miraclib_at_t0)
+    print('Number of samples per project:')
     print(proj_counts)
 
     response_counts = get_responder_counts(miraclib_at_t0)
+    print('Counts of responder/non-responder subjects:')
     print(response_counts)
 
     sex_counts = get_sex_counts(miraclib_at_t0)
+    print('Counts of male/female subjects:')
     print(sex_counts)
+
+    mm_b_counts = get_melanoma_male_data_t0(conn, summary)
+    print('Average number of B cells for melanoma male responders at time=0:')
+    print(f"{mm_b_counts:.2f}")
 
     conn.close()
