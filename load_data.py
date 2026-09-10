@@ -9,6 +9,8 @@ if os.path.exists('teiknical.db'):
 #read in csv
 cell_count = pd.read_csv('cell-count.csv')
 
+
+#PART 1
 #create a list of tuples from csv data to insert into tables
 metadata = cell_count[['sample', 'project', 'subject', 'condition', 'age', 'sex', 'treatment', 'response', 'sample_type', 'time_from_treatment_start']].values.tolist()
 
@@ -75,5 +77,6 @@ VALUES (?, ?, ?);
 populations
 )
 conn.commit()
+
 
 conn.close()
