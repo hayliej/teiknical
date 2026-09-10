@@ -6,3 +6,4 @@ pipeline:
 	python analysis.py
 
 dashboard:
+	streamlit run dashboard.py

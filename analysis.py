@@ -57,7 +57,7 @@ def get_miraclib_boxplot(miraclib_data):
     )
     fig.update_layout(
         xaxis_title="Population",
-        yaxis_title="Relative Frequency as Percentage"
+        yaxis_title="Relative Frequency as Percentages"
     )
 
     return fig
