@@ -3,10 +3,6 @@ from analysis import get_frequency_table, get_miraclib_data, get_miraclib_boxplo
 import sqlite3
 import pandas as pd
 
-import os
-st.write("Current working directory:", os.getcwd())
-st.write("Files here:", os.listdir())
-
 @st.cache_resource
 def get_connection():
     return sqlite3.connect('teiknical.db', check_same_thread=False)
