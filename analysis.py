@@ -28,13 +28,13 @@ def get_frequency_table(conn):
 
 #PART 3
 
-def get_miraclib_data(conn, summary):
+def get_miraclib_data(conn, summary, condition, treatment):
     #get sample ids from patients who have melanoma, are treated with miraclib, have a recorded response, and are PBMC samples
     miraclib_samples = pd.read_sql_query('''
     SELECT sample, response
     FROM samples_metadata
-    WHERE condition = 'melanoma' AND treatment = 'miraclib' AND response IS NOT NULL AND sample_type = 'PBMC'
-    ''', conn)
+    WHERE condition = ? AND treatment = ? AND response IS NOT NULL AND sample_type = 'PBMC'
+    ''', conn, params=(condition, treatment))
 
     #merge with data frame including percentages from part 2
     miraclib_data = pd.merge(miraclib_samples, summary, on='sample', how='inner')
@@ -49,7 +49,7 @@ def get_miraclib_boxplot(miraclib_data):
         x='population',
         y='percentage',
         color='response',
-        title='Population Relative Frequencies of Responders vs. Non-Responders to Miraclib in Melanoma Samples',
+        title='Population Relative Frequencies of Responders vs. Non-Responders',
         labels=
         {
             'response':'Response'
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     print(summary)
     
     #part 3
-    miraclib_data = get_miraclib_data(conn, summary)
+    miraclib_data = get_miraclib_data(conn, summary, 'melanoma', 'miraclib')
     print('Part 3 subsetted df:')
     print (miraclib_data)
     
